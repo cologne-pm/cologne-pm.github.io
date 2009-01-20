@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Einführung in die objektorientierte Programmierung unter Perl</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Einführung in die objektorientierte Programmierung unter Perl</h1></div><div><p class="copyright">Copyright © 2003 Jan Radeck</p></div><hr/></div><div class="toc"><p><b>Inhaltsverzeichnis</b></p><dl><dt>1. <a href="#d3e7">Einleitung</a></dt><dd><dl><dt>1.1. <a href="#d3e11">Voraussetzungen</a></dt><dt>1.2. <a href="#d3e23">Danksagungen</a></dt></dl></dd><dt>2. <a href="#d3e26">Grundlagen</a></dt><dd><dl><dt>2.1. <a href="#d3e28">Assoziative Arrays</a></dt><dt>2.2. <a href="#d3e66">Module und subs</a></dt><dd><dl><dt>2.2.1. <a href="#d3e69">Definition eines Moduls</a></dt><dt>2.2.2. <a href="#d3e76">Verwendung eines Moduls</a></dt></dl></dd><dt>2.3. <a href="#d3e84">Referenzen</a></dt></dl></dd><dt>3. <a href="#d3e102">Aufbau einer Klasse in Perl</a></dt><dd><dl><dt>3.1. <a href="#d3e104">Perl-Klassen sind auch nur Module</a></dt><dt>3.2. <a href="#d3e107">Anwendung der Klasse</a></dt><dt>3.3. <a href="#d3e125">Die Klasse genauer betrachtet</a></dt><dd><dl><dt>3.3.1. <a href="#d3e130">Der Konstruktor</a></dt><dt>3.3.2. <a href="#d3e140">Die Methoden addiere und ueberweise</a></dt><dt>3.3.3. <a href="#d3e149">Die Funktionen guthabenzinsen und kreditzinsen</a></dt></dl></dd><dt>3.4. <a href="#d3e153">Eine erste Zusammenfassung</a></dt></dl></dd><dt>4. <a href="#d3e166">Ein Beispiel für objektorientierte Programmierung</a></dt><dd><dl><dt>4.1. <a href="#d3e168">Aufgabenstellung</a></dt><dt>4.2. <a href="#d3e186">Zerlegung in Klassen</a></dt><dt>4.3. <a href="#d3e227">Die Klassen im Detail</a></dt><dd><dl><dt>4.3.1. <a href="#d3e230">Klasse TClass</a></dt><dt>4.3.2. <a href="#d3e233">Klasse TMethod</a></dt><dt>4.3.3. <a href="#d3e238">Klasse TParam</a></dt></dl></dd><dt>4.4. <a href="#d3e242">Vollständige Beschreibung der Klassen</a></dt><dd><dl><dt>4.4.1. <a href="#d3e246">Die Klasse TParam</a></dt><dt>4.4.2. <a href="#d3e249">Die Klasse TMethod</a></dt><dt>4.4.3. <a href="#d3e252">Die Klasse TClass</a></dt></dl></dd><dt>4.5. <a href="#d3e256">Die Klassen kritisch betrachtet</a></dt></dl></dd><dt>5. <a href="#d3e261">Abschluss</a></dt><dd><dl><dt>5.1. <a href="#d3e263">Wiederholung des Gelernten</a></dt><dt>5.2. <a href="#d3e273">Aufgaben</a></dt><dd><dl><dt>5.2.1. <a href="#d3e275">TPoint</a></dt><dt>5.2.2. <a href="#d3e284">TLine</a></dt></dl></dd></dl></dd><dt>A. <a href="#d3e294">Anhang 1</a></dt><dt>B. <a href="#d3e304">Anhang 2</a></dt><dt>C. <a href="#d3e326">Musterlösung zur Aufgabe</a></dt></dl></div><div class="sect1"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="d3e7"/>1. Einleitung</h2></div></div><p>Dieser Vortrag ist praxisorientiert, daher werde ich auf Theorie
+    verzichten, und an dieser Stelle auch keine Diskussion über die Vorteile
+    von objektorientierter Programmierung führen.</p><p>An einem kleinen Beispiel zeige ich den Aufbau einer Klasse in Perl.
+    Danach stelle ich die Lösung eines kleinen Problems dar, von der
+    Problemstellung bis zur objektorientierten Lösung. Anhand einer einfachen
+    Aufgabe, die eigenständig gelöst werden soll, besteht die Möglichkeit das
+    Gelernte zu rekapitulieren.</p><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e11"/>1.1. Voraussetzungen</h3></div></div><p>Der Leser sollte mit subs und Modulen vertraut sein. Weiterhin
+      setze ich Erfahrung mit assoziativen Arrays und Referenzen voraus. Im
+      Kapitel Grundlagen gebe ich eine kurze Einführung, weiterhin empfehle
+      ich die folgenden Perl manpages:</p><div class="itemizedlist"><ul type="disc"><li><p>zu assoziativen Arrays bzw. Hashes: perldata</p></li><li><p>zu subs: perlsub</p></li><li><p>zu Modulen: perlmod</p></li><li><p>zu Referenzen: perlreftut</p></li></ul></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e23"/>1.2. Danksagungen</h3></div></div><p>An dieser Stelle möchte ich mich kurz bei meiner Frau bedanken,
+      die Verständnis dafür hatte, dass ich die ohnehin knappe Zeit am
+      Wochenende für diesen Vortrag abgeknapst habe. Ebenfalls möchte ich mich
+      bei Cem Sakaryali und Michael Lamertz von Cologne.pm bedanken, die mit ihrem Feedback
+      zur Verständlichkeit dieses Vortrags beigetragen haben. Was an
+      Unverständlichkeit geblieben ist, liegt in meiner Verantwortung.</p></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="d3e26"/>2. Grundlagen</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e28"/>2.1. Assoziative Arrays</h3></div></div><p/><p>Assoziative Arrays, auch Hashes genannt, sind ein mächtiger
+      Datentyp in Perl.</p><p>Bei herkömmlichen Arrays werden die einzelnen Array-Elemente über
+      Ganzzahlen identifiziert, so liefert</p><pre class="programlisting">$array[0]</pre><p>das erste Element des Arrays @array. Die Zahl in den eckigen
+      Klammern wird <span class="emphasis"><em>Index</em></span> genannt.</p><p>Assoziativen Arrays werden nicht mit @ sondern mit % am Anfang
+      deklariert. Bei ihnen können die Indexwerte auch Strings sein. Der Index
+      wird nicht in eckigen, sondern in geschweiften Klammern gestellt. So
+      bezeichnet</p><pre class="programlisting">$assoc{'beispiel1'}</pre><p>den Wert des assoziativen Arrays %assoc, der unter dem Wert
+      'beispiel1' gespeichert ist.</p><p>Zur Initialisierung von assoziativen Arrays existiert eine
+      Kurzform. Statt</p><pre class="programlisting">$assoc{'beispiel1'} = 'erster wert';
+      $assoc{'anderes beispiel'} = 'zweiter wert';</pre><p>kann man auch</p><pre class="programlisting">
+%assoc = ('beispiel' =&gt; 'erster wert',
+	'anderes beispiel' =&gt; 'zweiter wert');</pre><p>schreiben.</p><div class="table"><a id="d3e44"/><table summary="Gegenüberstellung von Array und assoziativem Array" border="1"><colgroup><col/><col/><col/><col/><col/></colgroup><tbody><tr><td>Datentyp</td><td>Definition</td><td>Indexwerte</td><td>Zugriff</td><td>Anonyme Referenz</td></tr><tr><td>Array</td><td>@ary</td><td>Ganzzahlen</td><td>$ary[100]</td><td>$aryRef = [1, 5, 10, 15]</td></tr><tr><td>Assoziat. Array</td><td>%aso</td><td>Beliebiger Skalar</td><td>$aso{'wert'}</td><td>$asoRef = {'beispiel' =&gt; 'wert}</td></tr></tbody></table><p class="title"><b>Tabelle 1. Gegenüberstellung von Array und assoziativem Array</b></p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e66"/>2.2. Module und subs</h3></div></div><p>Durch Module lässt sich Programmcode, der logisch zusammengehört,
+      zusammenfassen.</p><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e69"/>2.2.1. Definition eines Moduls</h4></div></div><p>Ein einfaches Modul hat die Form</p><pre class="programlisting">
+package MyModule;
+
+my $wert = 0;
+
+sub setzeWert {
+	my ($inWert) = @_;
+
+	$wert = $inWert;
+}
+
+1;</pre><p>
+Das oben genannte Modul <span class="emphasis"><em>MyModule</em></span> muss in einer Datei mit dem Namen
+<tt>MyModule.pm</tt> gespeichert sein.
+</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e76"/>2.2.2. Verwendung eines Moduls</h4></div></div><p>Die Verwendung des oben dargestellten Moduls würde wie folgt
+        gehen:</p><pre class="programlisting">
+use MyModule;
+
+MyModule::setzeWert(5);
+print $MyModule::wert;</pre><p>
+		Subs und Variablen eines Moduls erhalten beim Aufruf also den Modulnamen, gefolgt von zwei Doppelpunkten, vorangestellt.
+	</p><p>
+		Das Modul wird durch das <span class="emphasis"><em>use</em></span>-Statement eingebunden. Dafür muss das Modul
+				im aktuellen Verzeichnis oder einem Verzeichnis, das in <tt>@PATH</tt> enthalten ist,
+		stehen.
+	</p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e84"/>2.3. Referenzen</h3></div></div><p>Referenzen sind ein wichtiges Hilfsmittel, um dynamische
+      Datenstrukturen zu erzeugen. Eine Referenz speichert einen Verweis auf
+      ein Datenobjekt, z.B. eine gewöhnliche Variable oder ein Array. Um eine
+      Referenz auf eine benannte Variable zu erzeugen schreibt man</p><pre class="programlisting">$referenz = \$variable;</pre><p>Über die Referenz kann man auf das referenzierte Objekt zugreifen.
+      So ändert der folgende Code den Wert der Variable $a auf 5:</p><pre class="programlisting">
+my $a = 4;         # Variable anlegen
+my $refa = \$a;    # Referenz auf Variable anlegen
+$$refa = 5;        # Ueber die Referenz die Variable setzen
+print $a;</pre><p>Hierbei fällt auf, dass der Zugriff auf die referenzierte Variable
+      mit zwei $-Zeichen eingeleitet wird. Eine Zuweisung erfolgt also an
+      <tt>$$refa</tt>. Bei Referenzen auf Arrays und Hashes gibt es dafür eine
+      Kurzform, die wir im nächsten Beispiel sehen:</p><pre class="programlisting">
+my %hash;
+my $hashref = \%hash;
+$hashref-&gt;{'otto'} = 'karl';
+print $hash{'otto'};</pre><p>Hier kann man statt $$hashref{'otto'} auch
+      $hashref-&gt;{'otto'} schreiben. Hier ist -&gt; ein Sinnbild
+      für die Tatsache dass $hashref eine Referenz ist. Für ein Array sähe der
+      Code so aus:</p><pre class="programlisting">
+my @array;
+my $arrayref = \@array;
+$arrayref-&gt;[0] = 5;
+print $array[0];</pre><p>Bis auf die Verwendung von eckigen Klammern statt geschweiften
+      Klammern ist die Schreibweise also gleich.</p><p>Im objektorientierten Perl werden häufig Referenzen auf anonyme
+      Objekte erzeugt. Anonyme Objekte sind Objekte, die sich nicht über einen
+      Namen ansprechen lassen und die so lange existieren, wie eine Referenz
+      auf sie existiert. So erzeugt</p><pre class="programlisting">$anonHashRef = {};</pre><p>ein anonymes assoziatives Array und speichert eine Referenz darauf
+      in $anonHashRef ab. Und der folgende Code erzeugt ein anonymes Array und
+      speichert eine Referenz darauf in $anonArrayRef ab.</p><pre class="programlisting">$anonArrayRef = ();</pre><p>Beim Zugriff auf referenzierte Objekte wird nicht zwischen
+      Referenzen auf benannte und anonyme Objekte unterschieden. So sähe der
+      Code für den Zugriff über die beiden oben eingerichteten Referenzen wie
+      folgt aus:</p><pre class="programlisting">
+$anonArrayRef-&gt;[0] = 7;
+$anonHashRef-&gt;{'beispiel'} = 9;</pre></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="d3e102"/>3. Aufbau einer Klasse in Perl</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e104"/>3.1. Perl-Klassen sind auch nur Module</h3></div></div><p>Die in Anhang A, Beispiel A.1 dargestellte Klasse TKonto bildet
+      ein einfaches Bankkonto ab. Auf den ersten Blick sieht man beim Code der
+      Klasse keinen Unterschied zu einem normalen Perl-Modul: Es handelt sich
+      um ein Package, das eine Reihe von subs enthält und dann mit 1; und
+      __END__ abgeschlossen wird.</p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e107"/>3.2. Anwendung der Klasse</h3></div></div><p>Die im Anhang A, Beispiel A.2 dargestellte Datei
+      <tt>TKonto_t.pl</tt> verwendet die Klasse
+      <tt>TKonto</tt>.</p><p>Das Einbinden der Klasse geschieht genau wie bei einem Modul durch
+      eine use-Anweisung. In den Zeilen 3 und 4 lege ich zwei Variablen vom
+      Typ TKonto durch Aufruf von new TKonto an. Dabei ist die erste
+      übergebene Zahl der Kontostand und die zweite Zahl das Dispolimit, d.h.
+      der Betrag um den das Konto maximal überzogen werden darf.</p><p>Als ersten Schritt richte ich zwei Konten ein:</p><pre class="programlisting">
+  1 use TKonto;
+  2
+  3 my $boss_konto = new TKonto (1000000, 70000);
+  4 my $mein_konto = new TKonto (200, 500);</pre><p>Danach führe ich in Zeile 13 eine Überweisung von meinem Boss zu
+      mir durch.</p><pre class="programlisting">
+ 13 $boss_konto-&gt;ueberweise ($mein_konto, 1000);</pre><p>Um zu kontrollieren, dass die Überweisung korrekt durchgeführt
+      wurde und dabei keine wundersame Geldvermehrung oder -vernichtung
+      stattgefunden hat, gebe ich die einzelnen Kontostände, sowie die
+      Gesamtsumme aus.</p><pre class="programlisting">
+  9 printf "Boss Konto: %9d\n", $boss_konto-&gt;getKontostand();
+ 10 printf "Mein Konto: %9d\n", $mein_konto-&gt;getKontostand();
+ 11 printf "Summe : %9d\n", $boss_konto-&gt;getKontostand()+$mein_konto-&gt;getKontostand();</pre><p>An diesem Beispiel sehen wir schon den prinzipiellen Ablauf beim
+      Einsatz einer Klasse: Zuerst wird eine neue Variable erzeugt, dann
+      werden Funktionen in Verbindung mit dieser Variablen aufgerufen:</p><pre class="programlisting">
+my $var = new Klasse();
+$var-&gt;example();</pre><p>In der Sprache der Objektorientierung: new ist der
+      <span class="emphasis"><em>Konstruktor</em></span> der Klasse, die Variable speichert eine
+      <span class="emphasis"><em>Instanz</em></span> der Klasse und die subs werden
+      <span class="emphasis"><em>Methoden</em></span> genannt.</p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e125"/>3.3. Die Klasse genauer betrachtet</h3></div></div><p>Nachdem wir gesehen haben, <span class="emphasis"><em>dass</em></span> die Klasse
+      funktioniert, wollen wir jetzt wissen, <span class="emphasis"><em>wie</em></span> die
+      Klasse funktioniert.</p><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e130"/>3.3.1. Der Konstruktor</h4></div></div><p>Betrachten wir zunächst <tt>new</tt>:</p><pre class="programlisting">
+  4 # Konstruktor
+  5 sub new {
+  6   my ($inPkg, $inKontostand, $inDispo) = @_;
+  7   my $self = {
+  8     'kontostand' =&gt; $inKontostand,
+  9     'dispo' =&gt; $inDispo
+ 10   };
+ 11   bless $self, $inPkg;
+ 12   return $self;
+ 13 }</pre><p>Die erste Besonderheit fällt uns in Zeile 6 auf: Das Testprogramm
+      ruft <tt>new</tt> mit zwei Parametern auf, tatsächlich
+      werden aber drei Parameter von der sub übernommen. Der erste Parameter
+      von <tt>new</tt> wird von Perl selber übergeben, und ist der
+      Name der Klasse.</p><p>In Zeile 7 mit $self eine Referenz auf ein assoziatives Array
+      angelegt in dem die Werte für Kontostand und Dispolimit gemerkt werden.
+      Als letztes wird in Zeile 11 <span class="emphasis"><em>bless</em></span> auf die Referenz aufgerufen
+      und die Referenz zurückgeliefert. Hier kommt dann auch wieder der Name
+      der Klasse in's Spiel, der an bless übergeben wird.</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e140"/>3.3.2. Die Methoden addiere und ueberweise</h4></div></div><p>Diese Methoden werden in der Form
+      <pre class="programlisting">$var-&gt;sub()</pre>
+	aufgerufen und erhalten einen Parameter
+      <tt>$inSelf</tt> übergeben.  Es handelt sich um die Referenz
+auf das in <tt>new</tt> angelegte Assoc. Darüber greifen Sie auf die im
+      Assoc gespeicherten Werte zu.
+</p><p>aufgerufen werden. Der Wert von <tt>$var</tt> wird dann
+      als erster Parameter übergeben und damit <tt>$inSelf</tt>
+      zugewiesen.</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e149"/>3.3.3. Die Funktionen guthabenzinsen und kreditzinsen</h4></div></div><p>
+Diese beiden Funktionen werden wie herkömmliche subs aufgerufen.
+Sie erhalten keinen <span class="emphasis"><em>zusaetzlichen</em></span> Parameter uebergeben und
+unterscheiden sich nicht von einer sub in einem normalen Modul.
+	</p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e153"/>3.4. Eine erste Zusammenfassung</h3></div></div><p><div class="itemizedlist"><ul type="disc"><li><p>Eine
+      Klasse in Perl besteht aus einem Modul, sowie einer sub
+      <tt>new</tt>, die ein Assoc zurückliefert, auf das zuvor
+      <tt>bless</tt> angewendet worden ist.</p></li><li><p>Eine
+      sub, die auf die im Assoc gespeicherten Werte zugreifen will, wird in
+      der Form $var-&gt;example() aufgerufen. Die Referenz auf das Assoc
+      erhält sie dann als ersten Parameter.</p></li><li><p>Ansonsten
+      kann man subs definieren, die wie in normalen Modulen funktionieren, und
+      die in der Form Modul::example() aufgerufen werden.</p></li></ul></div></p><p>
+Nach den Grundlagen der objektorientierten Programmierung in Perl, möchte
+ich jetzt eine kleine Anwendung zeigen.
+</p></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="d3e166"/>4. Ein Beispiel für objektorientierte Programmierung</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e168"/>4.1. Aufgabenstellung</h3></div></div><p>An dieser Stelle möchte ich an einem Praxisbeispiel aufzeigen, wie
+      in der Objektorientierung der Weg von der Idee zum fertigen Programm
+      verläuft.</p><p>Fangen wir mit einem einfachen Beispiel an.
+Beim Programmieren gibt es viel langweilige Tipparbeit, so auch beim Schreiben
+von Perl-Klassen.
+Um uns die Arbeit zu erleichten, wollen wir das Skelett
+      einer Klasse erstellen lassen, d.h. der reine Code, ohne Innenleben, also
+      z.B:</p><pre class="programlisting">
+package Class;
+
+sub Methodenname {
+	my ($inParm1, $inParm2) = @_;
+
+}
+
+1;</pre><p>Für unseren Zweck verwenden wir die folgende, vereinfachte
+      Definition einer Klasse: <div class="itemizedlist"><ul type="disc"><li><p>Eine Datei, deren
+      Namen mit dem Namen der Klasse übereinstimmt. D.h. der Klassenname muss
+      bekannt sein.</p></li><li><p>Eine Liste von Methoden.
+      Jede Methode hat einen Namen und eine Liste von Parametern. Jeder
+      Parameter hat wiederum einen Namen.</p></li></ul></div></p><p>
+		</p>
+Die folgende Abbildung zeigt eine Zerlegung der Datei in ihre Bestandteile.
+		<p>
+      <div class="figure"><a id="d3e181"/><span class="inlinemediaobject"><img src="OO Perl Objektstruktur 030407.gif"/></span><p class="title"><b>Abbildung 1. Objektstruktur</b></p></div></p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e186"/>4.2. Zerlegung in Klassen</h3></div></div><p>Aus dieser Definition ergibt sich die folgende Zerlegung:
+      <div class="itemizedlist"><ul type="disc"><li><p>Eine Klasse <span class="emphasis"><em>TParam</em></span>.
+      Die Klasse verfügt über ein Attribut <span class="emphasis"><em>Name</em></span>.</p></li><li><p>Eine
+      Klasse <span class="emphasis"><em>TMethod</em></span>. Die Klasse verfügt über ein
+      Attribut <span class="emphasis"><em>Name</em></span>, sowie eine Liste von Instanzen der
+      Klasse <span class="emphasis"><em>TParam</em></span>.</p></li><li><p>Eine
+      Klasse mit dem Namen <span class="emphasis"><em>TClass</em></span>. Die Klasse verfügt
+      über ein Attribut <span class="emphasis"><em>Name</em></span>, sowie eine Liste von
+      Instanzen der Klasse <span class="emphasis"><em>TMethod</em></span>.</p></li></ul></div></p><p>Das folgende Bild gibt einen Überblick über die resultierenden
+      Klassen, und zeigt welche Klasse sich auf welche andere Klasse abstützt.
+      <div class="figure"><a id="d3e205"/><span class="inlinemediaobject"><img src="OO Perl Klassenhierarchie 030327.gif"/></span><p class="title"><b>Abbildung 2. Klassenhierarchie</b></p></div></p><p>Diese Zerlegung hat mehrere Vorteile:
+      <div class="itemizedlist"><ul type="disc"><li><p>Sie unterteilt die Gesamtaufgabe in
+      kleinere und überschaubare Teile, die einzeln entworfen, geschrieben und
+      getestet werden können.</p></li><li><p>Die Aufteilung
+      enspricht der <span class="emphasis"><em>natürlichen</em></span> Gestalt des Problems, sie
+      bildet die <span class="emphasis"><em>reellen</em></span> Teile in Software-Teile ab. Die
+      Unterteilung ist kein magischer Akt, sondern orientiert sich an der
+      Beschreibung des Problems.</p></li></ul></div> Überlegen
+      wir uns die Struktur einer Klassendatei: <div class="figure"><a id="d3e218"/><span class="inlinemediaobject"><img src="OO Perl Dateistruktur 030329.gif"/></span><p class="title"><b>Abbildung 3. Struktur einer Klassendatei</b></p></div> Die Datei gliedert sich also
+      in einen Header, eine gewisse Anzahl Methoden und einen Footer. Sehen
+      wir uns die einzelnen Teile genauer an.</p><p>Der Header hat die Form <pre class="programlisting">package Class;
+      </pre> Der Footer hat die Form
+      <pre class="programlisting"> 1; </pre> Der Rumpf einer Methode hat die
+      Form <pre class="programlisting">
+sub Methodenname {
+	my (Param 1, ...,Param n) = @_;
+
+}</pre></p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e227"/>4.3. Die Klassen im Detail</h3></div></div><p>Aus dieser Darstellung ergibt sich für die einzelnen Klassen die
+      folgende Aufgabenteilung:</p><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e230"/>4.3.1. Klasse TClass</h4></div></div><p>Die Klasse gibt den Header aus. Dann durchläuft sie ihre
+        Methoden und fordert sie auf, sich selber auszugeben. Zum Schluß gibt
+        sie den Footer aus.</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e233"/>4.3.2. Klasse TMethod</h4></div></div><p>Eine Methode gibt <span class="emphasis"><em>sub</em></span> gefolgt von ihrem
+        eigenen Namen und <span class="emphasis"><em>{</em></span> aus. Dann gibt sie die
+        Parameterliste aus, wobei sie jeden Parameter auffordert, sich selber
+        auszugeben. Danach gibt sie den Rest der Zeile aus, sowie die
+        schliessende Klammer am Schluss.</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e238"/>4.3.3. Klasse TParam</h4></div></div><p>Der Parameter muss nicht viel tun, er muss sich nur selber
+        ausgeben können. Dabei stellt er seinem eigenen Namen noch ein
+        <span class="emphasis"><em>$</em></span> voran.</p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e242"/>4.4. Vollständige Beschreibung der Klassen</h3></div></div><p>Dabei gehen wir von &#8222;unten nach oben&#8220; vor.</p><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e246"/>4.4.1. Die Klasse TParam</h4></div></div><p> Die Klasse bekommt den
+      Namen des Parameters im Konstruktur übergeben. Mittels der Methode
+      getParamName() liefert er seinen Namen mit einem vorangestellten $
+      zurück. </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e249"/>4.4.2. Die Klasse TMethod</h4></div></div><p> Die Klasse bekommt den
+      Namen der Methode im Konstruktor übergeben. Sie verwaltet eine Liste von
+      TParam-Instanzen. Über addParam() wird die Liste erweitert. Der Aufruf
+      von getMethodBody() liefert den Rumpf der Methode zurück. </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e252"/>4.4.3. Die Klasse TClass</h4></div></div><p> Der Name der Klasse wird
+      im Konstruktor übergeben. Sie verwaltet eine Liste von
+      TMethod-Instanzen. Über addMethod() wird die Liste erweitert. Der Aufruf
+      von genClass() erzeugt den oben beschriebenen Rumpf einer Klassendatei.
+      </p></div><p>Die Klassen und die zugehörigen Testskripte sind im Anhang 2
+      aufgeführt.</p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e256"/>4.5. Die Klassen kritisch betrachtet</h3></div></div><p>Die Klassen leisten relativ wenig, gemessen am Aufwand den wir
+      betrieben haben um sie zu schreiben. Ohne Objektorientierung hätten wir
+      das gleiche Ergebnis auch in weniger als der Hälfte Codezeilen erreichen
+      können. Ganz besonders TParam erscheint ziemlich aufgebläht: Alles was
+      sie tut, ist einem String ein $-Zeichen voranstellen.</p><p>Programme haben die Tendenz zu wachsen. Und nachdem man sie
+      Schritt für Schritt erweitert hat, ist ihre Struktur ziemlich
+      unübersichtlich und jede Erweiterung führt mehr oder weniger schweren
+      Fehlern in das Programm ein.</p><p>Die von mir durchgeführte Zerlegung des Problems hat den Vorteil,
+      dass bei einer Änderung der Ort an dem geändert werden muss in der Regel
+      eindeutig bestimmt ist. Wenn ich bei den Parametern vermerken möchte, ob
+      es sich um Eingabe- oder Ausgabeparameter handelt, dann bietet sich
+      TParam dafür automatisch an. Gleichzeitig muss ich nicht befürchten, dass
+      sich diese Änderung auf Programmteile auswirkt, bei denen das nicht
+      erwünscht ist.</p></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="d3e261"/>5. Abschluss</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e263"/>5.1. Wiederholung des Gelernten</h3></div></div><p>Perl Klassen sind auch nur Module. Sie haben einen Konstruktor
+      <tt>new</tt>, der eine mit <tt>bless</tt>
+      behandelte Referenz auf ein Assoc zurückliefert und eine Reihe von
+      Methoden, die als ersten Parameter diese Referenz übergeben bekommen.</p><p>Instanzen werden durch <pre class="programlisting"> $instanz = new
+      Klasse(...); </pre> erzeugt, und Methoden werden in der Form
+      <pre class="programlisting"> $instanz-&gt;methode(...); </pre>
+      aufgerufen. Daneben kann eine Klasse auch subs enthalten, die wie in
+      <span class="emphasis"><em>normalen</em></span> Modulen auch, über
+      <pre class="programlisting"> Klasse::example(...) </pre> aufgerufen
+      werden.</p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e273"/>5.2. Aufgaben</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e275"/>5.2.1. TPoint</h4></div></div><p>Schreiben Sie eine Klasse <tt>TPoint</tt>, die
+        einen Punkt abbilden soll. Die Klasse hat zwei Member
+        <tt>xk</tt> und <tt>yk</tt>, die im Konstruktor
+        übergeben werden. Zusätzlich verfügt die Klasse über zwei Methoden
+        <tt>getX</tt> und <tt>getY</tt>, die den Wert
+        von xk bzw. yk zurückliefern. Als letztes gibt es eine Methode
+        <tt>distance</tt>, die den Abstand des Punktes zu einem
+        zweiten Punkt zurückliefert. Der Abstand wird berechnet als: Wurzel (
+        (x1 + x2) ^2 + (y1 + y2) ^2)</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a id="d3e284"/>5.2.2. TLine</h4></div></div><p>Schreiben Sie eine Klasse <tt>TLine</tt>, die eine
+        Linie abbilden soll. Die Klasse hat zwei Member <tt>p1</tt>
+        und <tt>p2</tt>, die Instanzen von <tt>TPoint</tt>
+        sind. Die Koordinaten x1, y1 des ersten Punkts und x2, y2 des zweiten
+        Punkts werden dem Konstruktor in der Reihenfolge x1, y1, x2, y2
+        übergeben. Schreiben Sie zwei Methoden <tt>getP1</tt> und
+        <tt>getP2</tt>, die jeweils p1 bzw. p2 zurückliefern.
+        Schreiben Sie eine Methode <tt>length</tt>, die die Länge
+        der Linie zurückliefert. Die Länge ist definiert als der Abstand der
+        beiden Punkte p1 und p2.</p></div></div></div><div class="appendix"><h2 class="title" style="clear: both"><a id="d3e294"/>A. Anhang 1</h2><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e296"/>A.1. Eine einfache Perl-Klasse</h3></div></div><div class="example"><a id="d3e298"/><p class="title"><b>Beispiel A.1. Die Klasse TKonto</b></p><pre class="programlisting">
+  1   package TKonto;
+  2   use strict;
+  3   
+  4   # Konstruktor
+  5   sub new {
+  6   	my ($inPkg, $inKontostand, $inDispo) = @_;
+  7   	my $self = {
+  8   		'kontostand' =&gt; $inKontostand,
+  9   		'dispo'	=&gt; $inDispo
+ 10   	};
+ 11   	bless $self, $inPkg;
+ 12   	return $self;
+ 13   }
+ 14   
+ 15   # Verändernde Methoden
+ 16   sub addiere {
+ 17   	my ($inSelf, $inBetrag) = @_;
+ 18   	$inSelf-&gt;{'kontostand'} += $inBetrag;
+ 19   }
+ 20   
+ 21   # Die Überweisung wird nur durchgeführt, wenn wir dadurch unseren
+ 22   # Dispo nicht überziehen.
+ 23   sub ueberweise {
+ 24   	my ($inSelf, $inTo, $inBetrag) = @_;
+ 25   	if ($inSelf-&gt;getKontostand() - $inBetrag &gt;= $inSelf-&gt;getDispo()) {
+ 26   		$inSelf-&gt;addiere (-$inBetrag);
+ 27   		$inTo-&gt;addiere ($inBetrag);
+ 28   	}
+ 29   }
+ 30   
+ 31   sub verzinse {
+ 32   	my ($inSelf) = @_;
+ 33   	
+ 34   	if ($inSelf-&gt;getKontostand() &gt; 0) {
+ 35   		$inSelf-&gt;addiere ($inSelf-&gt;getKontostand() * TKonto::guthabenzinsen());
+ 36   	} else {
+ 37   		$inSelf-&gt;addiere ($inSelf-&gt;getKontostand() * TKonto::kreditzinsen());
+ 38   	}
+ 39   }
+ 40   
+ 41   # Lesende Methoden
+ 42   sub getKontostand {
+ 43   	my ($inSelf) = @_;
+ 44   	return $inSelf-&gt;{'kontostand'};
+ 45   }
+ 46   
+ 47   sub getDispo {
+ 48   	my ($inSelf) = @_;
+ 49   	return $inSelf-&gt;{'dispo'};
+ 50   }
+ 51   
+ 52   # Statische Methoden
+ 53   
+ 54   # 2 Prozent Guthabenzinsen
+ 55   sub guthabenzinsen {
+ 56   	return 0.02;
+ 57   }
+ 58   
+ 59   # 9 Prozent Kreditzinsen
+ 60   sub kreditzinsen {
+ 61   	return 0.09;
+ 62   }
+ 63   
+ 64   1;
+ 65   
+ 66   __END__
+	    </pre></div><div class="example"><a id="d3e301"/><p class="title"><b>Beispiel A.2. Die Datei TKonto_t.pl</b></p><pre class="programlisting">
+  1   use TKonto;
+  2   
+  3   my $boss_konto = new TKonto (1000000, 70000);
+  4   my $mein_konto = new TKonto (200, 500);
+  5   
+  6   # Vor und nach der Überweisung muss die Summe gleich sein.
+  7   
+  8   print "\nVor der Ueberweisung\n";
+  9   printf "Boss Konto: %9d\n", $boss_konto-&gt;getKontostand();
+ 10   printf "Mein Konto: %9d\n", $mein_konto-&gt;getKontostand();
+ 11   printf "Summe     : %9d\n", $boss_konto-&gt;getKontostand()+$mein_konto-&gt;getKontostand();
+ 12   
+ 13   $boss_konto-&gt;ueberweise ($mein_konto, 1000);
+ 14   
+ 15   print "\nNach der Ueberweisung\n";
+ 16   printf "Boss Konto: %9d\n",$boss_konto-&gt;getKontostand();
+ 17   printf "Mein Konto: %9d\n",$mein_konto-&gt;getKontostand();
+ 18   printf "Summe     : %9d\n",$boss_konto-&gt;getKontostand()+$mein_konto-&gt;getKontostand(); 
+ 19   
+ 20   __END__
+ 21   
+	    </pre></div></div></div><div class="appendix"><h2 class="title" style="clear: both"><a id="d3e304"/>B. Anhang 2</h2><div class="sect2"><div class="titlepage"><div><h3 class="title"><a id="d3e306"/>B.1. Ein Praxisbeispiel</h3></div></div><div class="example"><a id="d3e308"/><p class="title"><b>Beispiel B.1. Die Klasse TParam</b></p><pre class="programlisting">
+  1   package TParam;
+  2   use strict;
+  3   
+  4   
+  5   sub new {
+  6   	my ($inPkg, $inName) = @_;
+  7   
+  8   	my $self = {
+  9   			'name'	=&gt; $inName
+ 10   			};
+ 11   	bless $self, $inPkg;
+ 12   	return $self;
+ 13   }
+ 14   
+ 15   
+ 16   sub getParamName {
+ 17   	my ($inSelf) = @_;
+ 18   
+ 19   	return '$'.$inSelf-&gt;{'name'};
+ 20   }
+ 21   
+ 22   
+ 23   1;
+ 24   
+ 25   __END__
+ </pre></div><div class="example"><a id="d3e311"/><p class="title"><b>Beispiel B.2. Das Skript TParam_t.pl</b></p><pre class="programlisting">
+  1   use strict;
+  2   use TParam;
+  3   
+  4   my $t = new TParam("Example");
+  5   
+  6   print $t-&gt;getParamName();
+	    </pre></div><div class="example"><a id="d3e314"/><p class="title"><b>Beispiel B.3. Die Klasse TMethod</b></p><pre class="programlisting">
+  1   package TMethod;
+  2   use strict;
+  3   
+  4   
+  5   sub new {
+  6   	my ($inPkg, $inName) = @_;
+  7   
+  8   	my $self = {
+  9   		'name'		=&gt; $inName,
+ 10   		'params'	=&gt; []
+ 11   		};
+ 12   
+ 13   	bless $self, $inPkg;
+ 14   	return $self;
+ 15   }
+ 16   
+ 17   
+ 18   sub addParam {
+ 19   	my ($inSelf, $inParam) = @_;
+ 20   
+ 21   	push @{$inSelf-&gt;{'param'}}, $inParam;
+ 22   }
+ 23   
+ 24   
+ 25   sub getMethodBody {
+ 26   	my ($inSelf) = @_;
+ 27   
+ 28   	my $result = "sub ".$inSelf-&gt;{'name'}." {\n";
+ 29   	$result .= "   my (";
+ 30   
+ 31   	my $delim = '';
+ 32   	foreach (@{$inSelf-&gt;{'param'}}) {
+ 33   		$result .= $delim;
+ 34   		$result .= $_-&gt;getParamName();
+ 35   		$delim = ', ';
+ 36   	}
+ 37   
+ 38   	$result .= ") = \@_;\n\n}\n\n";
+ 39   	return $result;
+ 40   }
+ 41   
+ 42   
+ 43   1;
+ 44   
+ 45   __END__
+ </pre></div><div class="example"><a id="d3e317"/><p class="title"><b>Beispiel B.4. Das Skript TMethod_t.pl</b></p><pre class="programlisting">
+  1   use strict;
+  2   use TParam;
+  3   use TMethod;
+  4   
+  5   my $p1 = new TParam("MyParam1");
+  6   my $p2 = new TParam("MyParam2");
+  7   my $m = new TMethod("MyMethod");
+  8   $m-&gt;addParam($p1);
+  9   $m-&gt;addParam($p2);
+ 10   
+ 11   print $m-&gt;getMethodBody();
+ 12   
+    </pre></div><div class="example"><a id="d3e320"/><p class="title"><b>Beispiel B.5. Die Klasse TClass</b></p><pre class="programlisting">
+  1   package TClass;
+  2   use strict;
+  3   
+  4   
+  5   sub new {
+  6   	my ($inPkg, $inName) = @_;
+  7   
+  8   	my $self = {
+  9   		'name'		=&gt; $inName,
+ 10   		'method'	=&gt; []
+ 11   		};
+ 12   
+ 13   	bless $self, $inPkg;
+ 14   	return $self;
+ 15   }
+ 16   
+ 17   
+ 18   sub addMethod {
+ 19   	my ($inSelf, $inMethod) = @_;
+ 20   
+ 21   	push @{$inSelf-&gt;{'method'}}, $inMethod;
+ 22   }
+ 23   
+ 24   
+ 25   sub genClass {
+ 26   	my ($inSelf) = @_;
+ 27   
+ 28   	my $filename = $inSelf-&gt;{'name'}.".pm";
+ 29   
+ 30   	my $result = "package ".$inSelf-&gt;{'name'}.";\n\n";
+ 31   
+ 32   	foreach (@{$inSelf-&gt;{'method'}}) {
+ 33   		$result .= $_-&gt;getMethodBody();
+ 34   	}
+ 35   
+ 36   	$result .= "1;\n\n";
+ 37   
+ 38   	open (OUTFILE, "&gt;$filename");
+ 39   	print OUTFILE $result;
+ 40   	close (OUTFILE);
+ 41   }
+ 42   
+ 43   
+ 44   1;
+ 45   
+ 46   __END__
+ </pre></div><div class="example"><a id="d3e323"/><p class="title"><b>Beispiel B.6. Das Skript TClass_t.pl</b></p><pre class="programlisting">
+  1   use strict;
+  2   use TParam;
+  3   use TMethod;
+  4   use TClass;
+  5   
+  6   my $p1 = new TParam("MyParam1");
+  7   my $p2 = new TParam("MyParam2");
+  8   my $m = new TMethod("MyMethod");
+  9   $m-&gt;addParam($p1);
+ 10   $m-&gt;addParam($p2);
+ 11   
+ 12   my $c = new TClass("MyClass");
+ 13   $c-&gt;addMethod($m);
+ 14   $c-&gt;genClass();
+</pre></div></div></div><div class="appendix"><h2 class="title" style="clear: both"><a id="d3e326"/>C. Musterlösung zur Aufgabe</h2><div class="example"><a id="d3e328"/><p class="title"><b>Beispiel C.1. Die Klasse TPoint</b></p><pre class="programlisting">
+  1   package TPoint;
+  2   use strict;
+  3   
+  4   # Konstruktor
+  5   
+  6   sub new {
+  7   	my ($inPkg, $inX, $inY) = @_;
+  8   
+  9   	my $self = {
+ 10   			'xk'	=&gt; $inX,
+ 11   			'yk'	=&gt; $inY
+ 12   		};
+ 13   
+ 14   	bless $self, $inPkg;
+ 15   	return $self;
+ 16   }
+ 17   
+ 18   
+ 19   # Zugriffsmethoden
+ 20   
+ 21   sub getX {
+ 22   	my ($inSelf) = @_;
+ 23   
+ 24   	return $inSelf-&gt;{'xk'};
+ 25   }
+ 26   
+ 27   sub getY {
+ 28   	my ($inSelf) = @_;
+ 29   
+ 30   	return $inSelf-&gt;{'yk'};
+ 31   }
+ 32   
+ 33   
+ 34   sub distance {
+ 35   	my ($inSelf, $inOther) = @_;
+ 36   	return sqrt( ($inSelf-&gt;getX() - $inOther-&gt;getX())**2 + ($inSelf-&gt;getY() - $inOther-&gt;getY())**2);
+ 37   }
+ 38   
+ 39   1;
+ 40   
+ 41   __END__
+		</pre></div><div class="example"><a id="d3e331"/><p class="title"><b>Beispiel C.2. Das Skript TPoint_t.pl</b></p><pre class="programlisting">
+  1   use strict;
+  2   use TPoint;
+  3   
+  4   my $p1 = new TPoint (0, 0);
+  5   my $p2 = new TPoint (3, 4);
+  6   
+  7   print "Distance : ".$p1-&gt;distance($p2);
+  8   
+  9   __END__
+		</pre></div><div class="example"><a id="d3e334"/><p class="title"><b>Beispiel C.3. Die Klasse TLine</b></p><pre class="programlisting">
+  1   package TLine;
+  2   use strict;
+  3   
+  4   use TPoint;
+  5   
+  6   
+  7   # Konstruktor
+  8   
+  9   sub new {
+ 10   	my ($inPkg, $inX1, $inY1, $inX2, $inY2) = @_;
+ 11   
+ 12   	my $self = {
+ 13   		'p1'	=&gt; new TPoint ($inX1, $inY1),
+ 14   		'p2'	=&gt; new TPoint ($inX2, $inY2)
+ 15   	};
+ 16   	bless $self, $inPkg;
+ 17   	return $self;
+ 18   }
+ 19   
+ 20   
+ 21   sub getP1 {
+ 22   	my ($inSelf) = @_;
+ 23   
+ 24   	return $inSelf-&gt;{'p1'};
+ 25   }
+ 26   
+ 27   sub getP2 {
+ 28   	my ($inSelf) = @_;
+ 29   
+ 30   	return $inSelf-&gt;{'p2'};
+ 31   }
+ 32   
+ 33   sub length {
+ 34   	my ($inSelf) = @_;
+ 35   
+ 36   	return $inSelf-&gt;getP1()-&gt;distance($inSelf-&gt;getP2());
+ 37   }
+ 38   
+ 39   1;
+ 40   
+ 41   __END__
+		</pre></div><div class="example"><a id="d3e337"/><p class="title"><b>Beispiel C.4. Das Skript TLine_t.pl</b></p><pre class="programlisting">
+  1   use strict;
+  2   use TLine;
+  3   
+  4   my $l = new TLine (0, 0, 3, 4);
+  5   print "Length : ".$l-&gt;length();
+		</pre></div></div></div></body></html>
+
